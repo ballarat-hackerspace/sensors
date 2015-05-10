@@ -2,14 +2,14 @@
 #include "idDHT22/idDHT22.h"
 
 // declaration for DHT11 handler
-int idDHT22pin = D0;   // Digital pin for comunications
-void dht22_wrapper();  // must be declared before the lib initialization
+int idDHT22pin = D0;	// Digital pin for comunications
+void dht22_wrapper();	// must be declared before the lib initialization
 
 // DHT instantiate
 idDHT22 DHT22(idDHT22pin, dht22_wrapper);
 
 void setup() {
-  pinMode(D7, OUTPUT);
+	pinMode(D7, OUTPUT);
 }
 
 void dht22_wrapper() {
@@ -18,7 +18,7 @@ void dht22_wrapper() {
 
 void loop()
 {
-  digitalWrite(D7, HIGH);
+	digitalWrite(D7, HIGH);
 
 	DHT22.acquire();
 	while (DHT22.acquiring())
