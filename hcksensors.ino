@@ -66,7 +66,7 @@ void loop()
 	sprintf(d, "%2.2f", DHT22.getDewPoint());
 	Spark.publish("ballarathackerspace.org.au/dewpoint", d);
 
-  digitalWrite(D7, LOW);
+	digitalWrite(D7, LOW);
 
 	delay(30000);
 }
