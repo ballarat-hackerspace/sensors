@@ -1,4 +1,4 @@
-# sensors
+# sparkfun conduit
 
 A simple script to watch the Spark.io event stream for events emitted by
 our sensor spark core and send the data into the Sparkfun system.
