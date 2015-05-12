@@ -12,10 +12,9 @@ following configs to be set by the running user:
   $ npm config set sensors:sparkfun_pub CCCC
 ```
 
-Replacing AAAA, BBBB and CCCC with the appropriate values. The script is
-then controlled via:
+Replacing AAAA, BBBB and CCCC with the appropriate values.
 
-Prior to first run ensure all dependencies are installed:
+Prior to first run ensure all required dependencies are installed:
 
 ```shell
   $ npm install
