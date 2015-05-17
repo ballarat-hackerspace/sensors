@@ -58,7 +58,7 @@ source.addEventListener('error', function(e) {
     log.warn("eventSource connection closed");
   }
   log.error(e);
-  process.exit(1);
+  process.exit(0);
 }, false);
 
 log.info("Waiting for events");
