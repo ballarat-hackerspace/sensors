@@ -14,6 +14,12 @@ following configs to be set by the running user:
 
 Replacing AAAA, BBBB and CCCC with the appropriate values.
 
+It also requires ```forever``` installed globally:
+
+```shell
+  $ sudo npm install -g forever
+```
+
 Prior to first run ensure all required dependencies are installed:
 
 ```shell
