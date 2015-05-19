@@ -1,0 +1,50 @@
+<html ng-app="sampleApp">
+<head>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css">
+</head>
+
+<body ng-controller="SampleCtrl">
+  <div class="container">
+    <div class="row">
+      <div class="col-sm-12">
+        <!-- anything typed in here is magically saved to Firebase! -->
+        <h1>T: {{temperature}} H: {{humidity}} DP: {{dewpoint}}</h1>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-sm-12">
+        <table class="table table-striped table-hover">
+          <thead>
+            <tr>
+              <th>Time</th>
+              <th>Temperature</th>
+              <th>Humidity</th>
+              <th>Dew Point</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr ng-repeat="d in data | limitTo:-10 | orderBy:'-epoch'">{{d}}</li>
+              <td>{{d.epoch}}</th>
+              <td>{{d.temperature}}</th>
+              <td>{{d.humidity}}</th>
+              <td>{{d.dewpoint}}</th>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-sm-12">
+        <h6 class="text-center">Last updated: {{epoch}}</h6>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.15/angular.min.js"></script>
+  <script src="https://cdn.firebase.com/js/client/2.2.4/firebase.js"></script>
+  <script src="https://cdn.firebase.com/libs/angularfire/1.1.1/angularfire.min.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
