@@ -5,6 +5,7 @@ var https = require('https'),
 process.env.npm_package_name || usage("This must be run this via npm");
 
 var temp, humidity, dewpoint;
+var cores = [];
 var lastUpdate = 0;
 var log = bunyan.createLogger({ name: process.env.npm_package_name });
 
@@ -33,20 +34,26 @@ var source = new EventSource('https://api.spark.io/v1/events',
 
 source.addEventListener('ballarathackerspace.org.au/temp', function(e) {
   temp = JSON.parse(e.data);
-  log.info("temperature=" + temp.data);
-  lastUpdate = Date.now() / 1000 | 0;
+  log.info(temp.coreid, "temperature=" + temp.data);
+  if (!cores[temp.coreid]) cores[temp.coreid] = {};
+  cores[temp.coreid].temperature = temp.data;
+  cores[temp.coreid].updated = Date.now() / 1000 | 0;
 }, false);
 
 source.addEventListener('ballarathackerspace.org.au/humid', function(e) {
   humidity = JSON.parse(e.data);
-  log.info("humidity=" + humidity.data);
-  lastUpdate = Date.now() / 1000 | 0;
+  log.info(humidity.coreid, "humidity=" + humidity.data);
+  if (!cores[humidity.coreid]) cores[humidity.coreid] = {};
+  cores[humidity.coreid].humidity = humidity.data;
+  cores[humidity.coreid].updated = Date.now() / 1000 | 0;
 }, false);
 
 source.addEventListener('ballarathackerspace.org.au/dewpoint', function(e) {
   dewpoint = JSON.parse(e.data);
-  log.info("dewpoint=" + dewpoint.data);
-  lastUpdate = Date.now() / 1000 | 0;
+  log.info(dewpoint.coreid, "dewpoint=" + dewpoint.data);
+  if (!cores[dewpoint.coreid]) cores[dewpoint.coreid] = {};
+  cores[dewpoint.coreid].dewpoint = dewpoint.data;
+  cores[dewpoint.coreid].updated = Date.now() / 1000 | 0;
 }, false);
 
 source.addEventListener('open', function(e) {
@@ -64,31 +71,35 @@ source.addEventListener('error', function(e) {
 log.info("Waiting for events");
 
 setInterval(function() {
-  var dataAge = (Date.now() / 1000 | 0) - lastUpdate;
-  if (dataAge > 120) {
-    log.warn("data too old, not sending to sparkfun");
-    return;
+  for (core in cores) {
+    var dataAge = (Date.now() / 1000 | 0) - cores[core].updated;
+    if (dataAge > 120) {
+      log.warn(core, "data too old, not sending to sparkfun");
+      break;
+    }
+    
+    log.info(core, "sending data to sparkfun");
+
+    var options = {
+      hostname: 'data.sparkfun.com',
+      port: 443,
+      path: '/input/' + sparkfun_pub + '?private_key=' + sparkfun_priv +
+	    '&dewpoint=' + cores[core].dewpoint +
+            '&humidity=' + cores[core].humidity +
+	    '&temperature=' + cores[core].temperature +
+            '&coreid=' + core,
+      method: 'GET'
+    };
+
+    var req = https.request(options, function(res) {
+      if (res.statusCode == 200) log.info(core, "data uploaded");
+      else log.error(core, "data upload failed: ", res.statusCode);
+    });
+
+    req.end();
+
+    req.on('error', function(e) {
+      log.error(core, e);
+    });
   }
-  
-  log.info("sending data to sparkfun");
-
-  var options = {
-    hostname: 'data.sparkfun.com',
-    port: 443,
-    path: '/input/' + sparkfun_pub + '?private_key=' + sparkfun_priv +
-          '&dewpoint=' + dewpoint.data + '&humidity=' + humidity.data +
-          '&temperature=' + temp.data,
-    method: 'GET'
-  };
-
-  var req = https.request(options, function(res) {
-    if (res.statusCode == 200) log.info("data uploaded");
-    else log.error("data upload failed: ", res.statusCode);
-  });
-
-  req.end();
-
-  req.on('error', function(e) {
-    log.error(e);
-  });
 }, 60000);
