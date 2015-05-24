@@ -92,9 +92,9 @@ setInterval(function() {
     };
 
     var req = https.request(options, function(res) {
-      if (res.statusCode == 200) log.info(core, "data uploaded");
-      else log.error(core, "data upload failed: ", res.statusCode);
-    });
+      if (res.statusCode == 200) log.info(this.core, "data uploaded");
+      else log.error(this.core, "data upload failed: ", res.statusCode);
+    }.bind({ core: core}));
 
     req.end();
 
