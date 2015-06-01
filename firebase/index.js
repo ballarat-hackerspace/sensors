@@ -3,17 +3,28 @@ var https = require('https'),
     Firebase = require("firebase"),
     bunyan = require('bunyan');
 
-//process.env.npm_package_name || usage("This must be run this via npm");
+process.env.npm_package_name || usage("This must be run this via npm");
 
 var temp, humidity, dewpoint;
 var lastUpdate = 0;
-//var log = bunyan.createLogger({ name: process.env.npm_package_name });
+var log = bunyan.createLogger({ name: process.env.npm_package_name });
 
 /* -------------------------------------------------------------- */
 
-var spark_api = "7c61e53f2f060147e4325d5f5440d15f4013be9f";
+var spark_api = process.env.npm_package_config_spark_api ||
+  usage("No Spark API key defined");
+var firebase_api = process.env.npm_package_config_firebase_api ||
+  usage("No Firebase API key defined");
+var firebase_url = process.env.npm_package_config_firebase_url ||
+  usage("No Firebase URL defined");
 
-var fb = new Firebase("https://flickering-inferno-6745.firebaseio.com/");
+var fb = new Firebase(firebase_url + "sensors/");
+fb.authWithCustomToken(firebase_api, function(error, data) {
+  if (error) {
+    log.error("Firebase login failed");
+    process.exit(1);
+  }
+});
 
 /* -------------------------------------------------------------- */
 
@@ -33,55 +44,38 @@ var es_headers = {
 var es = new EventSource('https://api.spark.io/v1/events', es_headers);
 
 es.addEventListener('ballarathackerspace.org.au/temp', function(e) {
-  temp = JSON.parse(e.data);
-  console.log("temperature=" + temp.data);
-  lastUpdate = Date.now() / 1000 | 0;
+  var temp = JSON.parse(e.data);
+  var when = Date.now() / 1000 | 0;
+  var data = { value: parseFloat(temp.data), when: when };
+  fb.child(temp.coreid).child('temperature').set(data);
+  log.info("temp", temp.coreid, data);
 }, false);
 
 es.addEventListener('ballarathackerspace.org.au/humid', function(e) {
-  humidity = JSON.parse(e.data);
-  console.log("humidity=" + humidity.data);
-  lastUpdate = Date.now() / 1000 | 0;
+  var humidity = JSON.parse(e.data);
+  var when = Date.now() / 1000 | 0;
+  var data = { value: parseFloat(humidity.data), when: when };
+  fb.child(humidity.coreid).child('humidity').set(data);
+  log.info("humid", humidity.coreid, data);
 }, false);
 
 es.addEventListener('ballarathackerspace.org.au/dewpoint', function(e) {
-  dewpoint = JSON.parse(e.data);
-  console.log("dewpoint=" + dewpoint.data);
-  lastUpdate = Date.now() / 1000 | 0;
+  var dewpoint = JSON.parse(e.data);
+  var when = Date.now() / 1000 | 0;
+  var data = { value: parseFloat(dewpoint.data), when: when };
+  fb.child(dewpoint.coreid).child('dewpoint').set(data);
+  log.info("dewpoint", dewpoint.coreid, data);
 }, false);
 
 es.addEventListener('open', function(e) {
-  console.log("eventsource connection opened");
+  log.info("eventsource connection opened");
 }, false);
 
 es.addEventListener('error', function(e) {
   if (e.readyState == Eventes.CLOSED) {
-    console.warn("eventsource connection closed");
+    log.error("eventsource connection closed");
   }
-
   console.error(e);
 }, false);
 
-console.log("Waiting for events");
-
-setInterval(function() {
-  var now = Date.now() / 1000;
-  var dataAge = (now | 0) - lastUpdate;
-
-  if (dataAge > 120) {
-    console.warn("data too old, not sending to firebase");
-    return;
-  }
-
-  console.log("sending data to firebase");
-
-  var opts = {
-    'epoch': now,
-    'dewpoint': dewpoint.data,
-    'humidity': humidity.data,
-    'temperature': temp.data
-  };
-
-  console.log(opts);
-  fb.push(opts);
-}, 60000);
+log.info("Waiting for events");
