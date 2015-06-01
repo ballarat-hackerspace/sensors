@@ -56,6 +56,11 @@ source.addEventListener('ballarathackerspace.org.au/dewpoint', function(e) {
   cores[dewpoint.coreid].updated = Date.now() / 1000 | 0;
 }, false);
 
+source.addEventListener('ballarathackerspace.org.au/status', function(e) {
+  data = JSON.parse(e.data);
+  log.warn("status", data);
+}, false);
+
 source.addEventListener('open', function(e) {
   log.info("eventSource connection opened");
 }, false);
@@ -99,7 +104,7 @@ setInterval(function() {
     req.end();
 
     req.on('error', function(e) {
-      log.error(core, e);
+      log.error("https.request error:", core, e);
     });
   }
 }, 60000);
