@@ -1,0 +1,48 @@
+#temperature,#humidity {
+  font-weight: 900;
+  text-align: right;
+}
+
+.alerts {
+  text-align: right;
+  padding-bottom: 4px;
+  font-size: 14pt;
+}
+
+.label {
+  font-weight: 400;
+}
+
+#motion,#light {
+  display: none;
+}
+
+.success {
+  opacity: 0.85;
+}
+
+.failure {
+  opacity: 0.1;
+}
+
+#logo {
+  text-align: right;
+}
+
+#status {
+  position: fixed;
+  bottom: 15px;
+  left: 15px;
+  text-align: right;
+}
+
+.jumbotron {
+  background-color: #00a2dd;
+  padding-top: 4px;
+  padding-bottom: 8px;
+}
+
+.btn {
+  margin-top: 3px;
+  margin-bottom: 3px;
+}

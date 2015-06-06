@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name=viewport>
+<meta content="IE=edge,chrome=1" http-equiv=X-UA-Compatible>
+<head>
+  <meta charset="UTF-8">
+  <title>Ballarat Hackerspace Environment</title>
+  <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
+  <link href='http://fonts.googleapis.com/css?family=Martel:400,900,200' rel='stylesheet' type='text/css'>
+  <link rel="stylesheet" href="app.css">
+</head>
+<body>
+  <div class="jumbotron">
+    <div class="container">
+      <div class="row">
+        <div class="col-md-12">
+          <img class="img-responsive pull-right" src="hackerspace-white.png">
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-xs-6 col-md-3"><a id="55ff72066678505541131367" class="btn btn-block btn-primary" href="#55ff72066678505541131367" onClick="setCoreId(this.id)" role="button">HCKSNR00</a></div>
+        <div class="col-xs-6 col-md-3"><a id="51ff65065067545737240187" class="btn btn-block btn-default" href="#51ff65065067545737240187" onClick="setCoreId(this.id)" role="button">HCKSNR01</a></div>
+        <div class="col-xs-6 col-md-3"><a id="51ff6a065082554952140687" class="btn btn-block btn-default" href="#51ff6a065082554952140687" onClick="setCoreId(this.id)" role="button">HCKSNR02</a></div>
+        <div class="col-xs-6 col-md-3"><a id="51ff6a065082554947200987" class="btn btn-block btn-default" href="#51ff6a065082554947200987" onClick="setCoreId(this.id)" role="button">HCKSNR03</a></div>
+        <div class="col-xs-6 col-md-3"><a id="50ff71065067545625360587" class="btn btn-block btn-default" href="#50ff71065067545625360587" onClick="setCoreId(this.id)" role="button">HCK_DEV</a></div>
+      </div>
+    </div>
+  </div>
+  <div class="container">
+    <span id="status" class='label label-default'>reading sensor...</span>
+    <div class="row">
+      <div class="col-xs-12"><div id="temperature">&middot;&middot;&middot;</div></div>
+      <div class="col-xs-12"><div id="humidity">&middot;&middot;&middot;</div></div>
+    </div>
+    <div class="row">
+      <div class="col-xs-12 alerts">
+        <span id="light" class="label label-default">&middot;&middot;&middot;</span>
+      </div>
+      <div class="col-xs-12 alerts">
+        <span id="motion" class="label label-default">&middot;&middot;&middot;</span>
+      </div>
+    </div>
+  </div>
+  <script src='https://cdn.firebase.com/js/client/2.2.1/firebase.js'></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+  <script src="jquery.fittext.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
