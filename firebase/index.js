@@ -18,7 +18,7 @@ var firebase_api = process.env.npm_package_config_firebase_api ||
 var firebase_url = process.env.npm_package_config_firebase_url ||
   usage("No Firebase URL defined");
 
-var fb = new Firebase(firebase_url + "sensors/");
+var fb = new Firebase(firebase_url);
 fb.authWithCustomToken(firebase_api, function(error, data) {
   if (error) {
     log.error("Firebase login failed");
@@ -47,7 +47,8 @@ es.addEventListener('ballarathackerspace.org.au/temp', function(e) {
   var temp = JSON.parse(e.data);
   var when = Date.now() / 1000 | 0;
   var data = { value: parseFloat(temp.data), when: when };
-  fb.child(temp.coreid).child('temperature').set(data);
+  fb.child('sensors').child(temp.coreid).child('temperature').set(data);
+  fb.child('historic').child(temp.coreid).child('temperature').push(data);
   log.info("temp", temp.coreid, data);
 }, false);
 
@@ -55,7 +56,8 @@ es.addEventListener('ballarathackerspace.org.au/humid', function(e) {
   var humidity = JSON.parse(e.data);
   var when = Date.now() / 1000 | 0;
   var data = { value: parseFloat(humidity.data), when: when };
-  fb.child(humidity.coreid).child('humidity').set(data);
+  fb.child('sensors').child(humidity.coreid).child('humidity').set(data);
+  fb.child('historic').child(humidity.coreid).child('humidity').push(data);
   log.info("humid", humidity.coreid, data);
 }, false);
 
@@ -63,8 +65,44 @@ es.addEventListener('ballarathackerspace.org.au/dewpoint', function(e) {
   var dewpoint = JSON.parse(e.data);
   var when = Date.now() / 1000 | 0;
   var data = { value: parseFloat(dewpoint.data), when: when };
-  fb.child(dewpoint.coreid).child('dewpoint').set(data);
+  fb.child('sensors').child(dewpoint.coreid).child('dewpoint').set(data);
+  fb.child('historic').child(dewpoint.coreid).child('dewpoint').push(data);
   log.info("dewpoint", dewpoint.coreid, data);
+}, false);
+
+es.addEventListener('ballarathackerspace.org.au/motion', function(e) {
+  var motion = JSON.parse(e.data);
+  var when = Date.now() / 1000 | 0;
+  var data = { when: when };
+  fb.child('sensors').child(motion.coreid).child('motion').set(data);
+  log.info("motion", motion.coreid);
+}, false);
+
+es.addEventListener('ballarathackerspace.org.au/light', function(e) {
+  var light = JSON.parse(e.data);
+  var when = Date.now() / 1000 | 0;
+  var data = { value: parseInt(light.data), when: when };
+  fb.child('sensors').child(light.coreid).child('light').set(data);
+  log.info("light", light.coreid, data);
+}, false);
+
+es.addEventListener('ballarathackerspace.org.au/wifi', function(e) {
+  var wifi = JSON.parse(e.data);
+  var raw = wifi.data.split(":");
+  var when = Date.now() / 1000 | 0;
+  if (parseInt(raw[1]) < 0) {
+    var data = { ssid: raw[0], rssi: parseInt(raw[1]), when: when };
+    fb.child('sensors').child(wifi.coreid).child('wifi').set(data);
+    log.info("wifi", wifi.coreid, data);
+  }
+  else {
+    log.warn("bad wifi data", wifi.data);
+  }
+}, false);
+
+es.addEventListener('ballarathackerspace.org.au/status', function(e) {
+  var status = JSON.parse(e.data);
+  log.warn("status", status.coreid, status.data);
 }, false);
 
 es.addEventListener('open', function(e) {
@@ -72,10 +110,11 @@ es.addEventListener('open', function(e) {
 }, false);
 
 es.addEventListener('error', function(e) {
-  if (e.readyState == Eventes.CLOSED) {
+  if (e.readyState == EventSource.CLOSED) {
     log.error("eventsource connection closed");
   }
   console.error(e);
+  process.exit(0);
 }, false);
 
 log.info("Waiting for events");
