@@ -73,9 +73,13 @@ es.addEventListener('ballarathackerspace.org.au/dewpoint', function(e) {
 es.addEventListener('ballarathackerspace.org.au/motion', function(e) {
   var motion = JSON.parse(e.data);
   var when = Date.now() / 1000 | 0;
-  var data = { when: when };
+  if (motion.hasOwnProperty("data")) {
+    var data = { value: parseInt(motion.data), when: when };
+  } else {
+    var data = { when: when };
+  }
   fb.child('sensors').child(motion.coreid).child('motion').set(data);
-  log.info("motion", motion.coreid);
+  log.info("motion", motion.coreid, data);
 }, false);
 
 es.addEventListener('ballarathackerspace.org.au/light', function(e) {
