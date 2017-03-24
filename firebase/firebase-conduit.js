@@ -60,47 +60,28 @@ function es_connect() {
 
   es = new EventSource('https://api.spark.io/v1/events', es_headers);
 
-  es.addEventListener('ballarathackerspace.org.au/temp', function(e) {
+  es.addEventListener('ballarathackerspace.org.au/dht', function(e) {
     es_activity();
-    var temp = JSON.parse(e.data);
     var when = Date.now() / 1000 | 0;
-    var data = { value: parseFloat(temp.data), when: when };
-    fb.child('sensors').child(temp.coreid).child('temperature').set(data);
-    fb.child('historic').child(temp.coreid).child('temperature').push(data);
-    log.info("temp", temp.coreid, data);
-  }, false);
+    var incoming = JSON.parse(e.data);
+    var dht_raw = JSON.parse(incoming.data);
+    log.info("dht=", dht_raw.dht);
+    var dht = dht_raw.dht.split(" ");
 
-  es.addEventListener('ballarathackerspace.org.au/humid', function(e) {
-    es_activity();
-    var humidity = JSON.parse(e.data);
-    var when = Date.now() / 1000 | 0;
-    var data = { value: parseFloat(humidity.data), when: when };
-    fb.child('sensors').child(humidity.coreid).child('humidity').set(data);
-    fb.child('historic').child(humidity.coreid).child('humidity').push(data);
-    log.info("humid", humidity.coreid, data);
-  }, false);
+    var data = { value: parseFloat(dht[0]), when: when };
+    fb.child('sensors').child(incoming.coreid).child('dewpoint').set(data);
+    fb.child('historic').child(incoming.coreid).child('dewpoint').push(data);
+    log.info("dew", data);
 
-  es.addEventListener('ballarathackerspace.org.au/dewpoint', function(e) {
-    es_activity();
-    var dewpoint = JSON.parse(e.data);
-    var when = Date.now() / 1000 | 0;
-    var data = { value: parseFloat(dewpoint.data), when: when };
-    fb.child('sensors').child(dewpoint.coreid).child('dewpoint').set(data);
-    fb.child('historic').child(dewpoint.coreid).child('dewpoint').push(data);
-    log.info("dewpoint", dewpoint.coreid, data);
-  }, false);
+    var data = { value: parseFloat(dht[1]), when: when };
+    fb.child('sensors').child(incoming.coreid).child('humidity').set(data);
+    fb.child('historic').child(incoming.coreid).child('humidity').push(data);
+    log.info("humid", data);
 
-  es.addEventListener('ballarathackerspace.org.au/motion', function(e) {
-    es_activity();
-    var motion = JSON.parse(e.data);
-    var when = Date.now() / 1000 | 0;
-    if (motion.hasOwnProperty("data")) {
-      var data = { value: parseInt(motion.data), when: when };
-    } else {
-      var data = { when: when };
-    }
-    fb.child('sensors').child(motion.coreid).child('motion').set(data);
-    log.info("motion", motion.coreid, data);
+    var data = { value: parseFloat(dht[2]), when: when };
+    fb.child('sensors').child(incoming.coreid).child('temperature').set(data);
+    fb.child('historic').child(incoming.coreid).child('temperature').push(data);
+    log.info("temp", data);
   }, false);
 
   es.addEventListener('ballarathackerspace.org.au/light', function(e) {
